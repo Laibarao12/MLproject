@@ -1,63 +1,80 @@
-#when we will be working with different people everyone will be collecting data and storing it in difffernet datbases like hadoop, mongoDB, so m as a data scientist will be reading data as first from different data sources
-#There are many type of data sources here we will be startig with first with local data sources
+# When working with different teams, data can be collected and stored in various databases like Hadoop, MongoDB, etc.
+# As a data scientist, your first task is to read data from these sources.
+# Here, we'll start with local data sources (e.g. CSV files).
+# This data might be created by the big data team or the cloud team.
+# Our aim is to read the data and split it into train/test splits.
 
-#this data source can be created by big data team or from cloud team
-
-#our aim is to read that data split that data ito train test split 
 import os
 import sys
-from src.exception import CustomException
-from src.logger import logging
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from dataclasses import dataclass
 
-#i will be using a decorator to use this data ingestionConfig
+from src.exception import CustomException
+from src.logger import logging
+from src.components.data_transformation import DataTransformation
 
-
-
+# -----------------------------
+# CONFIGURATION CLASS
+# -----------------------------
 @dataclass
-class DataIngestionConfig: #Configuration = settings or instructions for how your program should work.
-    train_data_path: str=os.path.join('artifacts',"train.csv") 
-    # i will make sure that i will make artifacct folder so that i will be able to see my output
-    # So thi siwll be the path initaiilly we will b givingn to our
-    # data ingestion component  and data ingestion component output 
-    # will save all the file in tis path, train data will be saved be in this path
-    test_data_path: str=os.path.join('artifacts',"test.csv") #similarly for test data
-    raw_data_path: str=os.path.join('artifacts',"data.csv")#Raw data
-    
-    # THese are the inputs that im giving tomy data ingestion component
-    # and now data ingestion componnet knows where to save the in train,test adn raw path
-    # Why this data ingestion config is called?
+class DataIngestionConfig:
+    """
+    Holds configuration for paths where data will be saved.
+    """
+    train_data_path: str = os.path.join('artifacts', "train.csv")
+    test_data_path: str = os.path.join('artifacts', "test.csv")
+    raw_data_path: str = os.path.join('artifacts', "data.csv")
+
+
+# -----------------------------
+# MAIN DATA INGESTION CLASS
+# -----------------------------
 class DataIngestion:
-     def __init__(self):
-          self.ingestion_config= DataIngestionConfig()# this will xonsist of those three paths /values
-     def initiate_data_ingestion(self):
-          logging.info("Entered the data ingestion mehod or component")
-          try:
-              df=pd.read_csv('C:/Users/1/Downloads/Data Science Course/Projects/Endtoend Machine Learning project with Azur and AWS Deployment/NoteBook/Data/stud.csv') # we can read from anywhere mongodoba nda nayhing but here we are reading with csv 
-              logging.info('Read the dataset as dataframe')
-              #lets create artifact folder
-              os.makedirs(os.path.dirname(self.ingestion_config.train_data_path),exist_ok=True)
+    def __init__(self):
+        self.ingestion_config = DataIngestionConfig()
 
-              df.to_csv(self.ingestion_config.raw_data_path, index=False, header=True)
+    def initiate_data_ingestion(self):
+        logging.info("Entered the data ingestion method/component.")
 
-              logging.info("Tran test split initiated")
-              train_Set, test_set = train_test_split(df, test_size=0.2, random_state=42)
+        try:
+            # READ SOURCE DATA
+            df = pd.read_csv(
+                'C:/Users/1/Downloads/Data Science Course/Projects/Endtoend Machine Learning project with Azur and AWS Deployment/NoteBook/Data/stud.csv'
+            )
+            logging.info('Read the dataset as dataframe.')
 
-              train_Set.to_csv(self.ingestion_config.train_data_path, index=False, header=True)
-              test_set.to_csv(self.ingestion_config.test_data_path, index=False, header=True)
+            # CREATE ARTIFACTS FOLDER IF NEEDED
+            os.makedirs(os.path.dirname(self.ingestion_config.train_data_path), exist_ok=True)
 
-              logging.info("INgestion of the data is completed")
+            # SAVE RAW DATA
+            df.to_csv(self.ingestion_config.raw_data_path, index=False, header=True)
+            logging.info("Saved raw data.")
 
-              return(
-                   self.ingestion_config.train_data_path,
-                   self.ingestion_config.test_data_path
-              )
-              #✅ The purpose of the return in your function is to tell the caller “Here are the paths you will actually use next.”
-          except Exception as e:
-               raise CustomException(e,sys)
-          
-if __name__ =="__main__":
-     obj = DataIngestion()
-     obj.initiate_data_ingestion()         
+            # TRAIN-TEST SPLIT
+            logging.info("Train-test split initiated.")
+            train_set, test_set = train_test_split(df, test_size=0.2, random_state=42)
+
+            train_set.to_csv(self.ingestion_config.train_data_path, index=False, header=True)
+            test_set.to_csv(self.ingestion_config.test_data_path, index=False, header=True)
+
+            logging.info("Ingestion of the data is completed.")
+
+            return (
+                self.ingestion_config.train_data_path,
+                self.ingestion_config.test_data_path
+            )
+
+        except Exception as e:
+            raise CustomException(e, sys)
+
+
+# -----------------------------
+# MAIN EXECUTION
+# -----------------------------
+if __name__ == "__main__":
+    obj = DataIngestion()
+    train_data, test_data = obj.initiate_data_ingestion()
+
+    data_transformation = DataTransformation()
+    data_transformation.initiate_data_transformation(train_data, test_data)
