@@ -2,7 +2,7 @@ from src.logger import logging
 import sys
 
 def error_message_detail(error, error_detail: sys):
-    _, _, exc_tb = error_detail.exc_info()
+    _, _, exc_tb = sys.exc_info()
     file_name = exc_tb.tb_frame.f_code.co_filename
     # This _ mean info we have skiped first two info and focusing on thired 
     # this third one give the info here the erroer occusred aand at which line  and file
