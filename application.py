@@ -1,3 +1,5 @@
+##THIS application.py is for DEPLOYMENT PURPOSE 
+
 from flask import Flask, request, render_template
 from src.pipeline.predict_pipeline import CustomData, PredictPipeline
 
@@ -28,4 +30,6 @@ def predict_data():
     return render_template('result.html', results=results[0])
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0",debug=True)
+    app.run(host="0.0.0.0")
+
+
