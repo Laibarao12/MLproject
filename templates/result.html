@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Prediction Result</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="result">
+        <h3>Predicted Maths Score</h3>
+        <p class="predicted-value">{{ results }}</p>
+    </div>
+    <a class="try-again-button" href="/">&#8592; Try Again</a>
+</body>
+</html>
